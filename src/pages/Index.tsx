@@ -71,6 +71,17 @@ export default function Index() {
   const regularHours = Math.floor(regularMinutes / 60);
   const regularMins = regularMinutes % 60;
 
+  const getProgramLevel = (hours: number) => {
+    if (hours < 16) return { level: 'Ознакомительный уровень', range: 'до 16 ак.ч.', color: 'bg-blue-100 text-blue-700 border-blue-300', emoji: '🔍', description: 'Краткое знакомство с направлением' };
+    if (hours < 36) return { level: 'Ознакомительный уровень', range: '16-36 ак.ч.', color: 'bg-blue-100 text-blue-700 border-blue-300', emoji: '🔍', description: 'Первичное освоение основ' };
+    if (hours < 72) return { level: 'Базовый уровень', range: '36-72 ак.ч.', color: 'bg-green-100 text-green-700 border-green-300', emoji: '📚', description: 'Системное изучение предмета' };
+    if (hours < 144) return { level: 'Углублённый уровень', range: '72-144 ак.ч.', color: 'bg-purple-100 text-purple-700 border-purple-300', emoji: '🎯', description: 'Глубокое изучение с практикой' };
+    if (hours < 288) return { level: 'Профильный уровень', range: '144-288 ак.ч.', color: 'bg-orange-100 text-orange-700 border-orange-300', emoji: '🏆', description: 'Профессиональная подготовка' };
+    return { level: 'Продвинутый уровень', range: '288+ ак.ч.', color: 'bg-red-100 text-red-700 border-red-300', emoji: '⭐', description: 'Экспертное мастерство' };
+  };
+
+  const currentProgram = getProgramLevel(academicHours);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
@@ -222,6 +233,15 @@ export default function Index() {
                       <div className="text-sm text-muted-foreground mt-3">
                         {ageGroups[selectedAgeGroup].emoji} {totalMinutes} мин = {academicHours} × {ageGroups[selectedAgeGroup].duration} мин
                       </div>
+                      
+                      {academicHours >= 16 && (
+                        <div className={`mt-4 p-3 rounded-lg border-2 ${currentProgram.color}`}>
+                          <div className="text-2xl mb-1">{currentProgram.emoji}</div>
+                          <div className="font-bold text-sm mb-1">{currentProgram.level}</div>
+                          <div className="text-xs opacity-80 mb-1">{currentProgram.range}</div>
+                          <div className="text-xs opacity-90">{currentProgram.description}</div>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <>
@@ -280,48 +300,82 @@ export default function Index() {
           </div>
         </div>
 
-        <Card className="mb-12 shadow-lg animate-scale-in">
-          <CardHeader className="bg-muted/50">
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Icon name="BookOpen" size={28} className="text-primary" />
-              Возрастные группы и стандарты
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <Accordion type="single" collapsible className="w-full">
-              {ageGroups.map((group, index) => (
-                <AccordionItem key={index} value={`item-${index}`}>
-                  <AccordionTrigger className="text-left hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl">{group.emoji}</span>
-                      <div>
-                        <div className="font-semibold text-lg">{group.range}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Академический час: {group.duration} минут
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <Card className="shadow-lg animate-scale-in">
+            <CardHeader className="bg-muted/50">
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Icon name="BookOpen" size={28} className="text-primary" />
+                Возрастные группы
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <Accordion type="single" collapsible className="w-full">
+                {ageGroups.map((group, index) => (
+                  <AccordionItem key={index} value={`item-${index}`}>
+                    <AccordionTrigger className="text-left hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{group.emoji}</span>
+                        <div>
+                          <div className="font-semibold text-lg">{group.range}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Академический час: {group.duration} минут
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="pl-12 pt-2 space-y-3">
-                      <p className="text-foreground">{group.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {group.features.map((feature, idx) => (
-                          <span
-                            key={idx}
-                            className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium"
-                          >
-                            {feature}
-                          </span>
-                        ))}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="pl-12 pt-2 space-y-3">
+                        <p className="text-foreground">{group.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {group.features.map((feature, idx) => (
+                            <span
+                              key={idx}
+                              className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium"
+                            >
+                              {feature}
+                            </span>
+                          ))}
+                        </div>
                       </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg animate-scale-in">
+            <CardHeader className="bg-muted/50">
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Icon name="GraduationCap" size={28} className="text-primary" />
+                Уровни программ
+              </CardTitle>
+              <CardDescription>
+                Классификация по объёму академических часов
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-3">
+              {[
+                { level: 'Ознакомительный', range: '16-36 ак.ч.', emoji: '🔍', color: 'bg-blue-100 text-blue-700 border-blue-300', desc: 'Первичное освоение основ' },
+                { level: 'Базовый', range: '36-72 ак.ч.', emoji: '📚', color: 'bg-green-100 text-green-700 border-green-300', desc: 'Системное изучение предмета' },
+                { level: 'Углублённый', range: '72-144 ак.ч.', emoji: '🎯', color: 'bg-purple-100 text-purple-700 border-purple-300', desc: 'Глубокое изучение с практикой' },
+                { level: 'Профильный', range: '144-288 ак.ч.', emoji: '🏆', color: 'bg-orange-100 text-orange-700 border-orange-300', desc: 'Профессиональная подготовка' },
+                { level: 'Продвинутый', range: '288+ ак.ч.', emoji: '⭐', color: 'bg-red-100 text-red-700 border-red-300', desc: 'Экспертное мастерство' }
+              ].map((prog, idx) => (
+                <div key={idx} className={`p-4 rounded-lg border-2 ${prog.color}`}>
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">{prog.emoji}</span>
+                    <div className="flex-1">
+                      <div className="font-bold text-sm mb-1">{prog.level}</div>
+                      <div className="text-xs opacity-80 mb-1">{prog.range}</div>
+                      <div className="text-xs opacity-90">{prog.desc}</div>
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
+                  </div>
+                </div>
               ))}
-            </Accordion>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         <Card className="shadow-lg animate-fade-in">
           <CardHeader className="bg-secondary/5">
