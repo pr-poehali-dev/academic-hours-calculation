@@ -14,49 +14,51 @@ const ageGroups = [
     range: '1.5-3 года',
     emoji: '👶',
     duration: 10,
-    description: 'Ясельный возраст. Занятия проходят в игровой форме с частыми переменами активности.',
+    description: 'Ясельный возраст. Занятия в дополнительном образовании проходят в игровой форме с частыми переменами активности.',
     features: ['Короткие занятия', 'Игровая форма', 'Частые перерывы']
   },
   {
     range: '3-4 года',
     emoji: '🧒',
     duration: 15,
-    description: 'Младший дошкольный возраст. Дети учатся концентрировать внимание на более длительное время.',
+    description: 'Младший дошкольный возраст. Дети в кружках и секциях учатся концентрировать внимание на более длительное время.',
     features: ['Развитие внимания', 'Творческие задания', 'Социализация']
   },
   {
     range: '4-5 лет',
     emoji: '👦',
     duration: 20,
-    description: 'Средний дошкольный возраст. Активное развитие познавательных способностей.',
+    description: 'Средний дошкольный возраст. Активное развитие познавательных способностей в студиях и секциях.',
     features: ['Познавательная активность', 'Развитие речи', 'Творчество']
   },
   {
     range: '5-6 лет',
     emoji: '🧑',
     duration: 25,
-    description: 'Старший дошкольный возраст. Подготовка к школьному обучению.',
+    description: 'Старший дошкольный возраст. Подготовительные программы в центрах дополнительного образования.',
     features: ['Подготовка к школе', 'Развитие усидчивости', 'Базовые навыки']
   },
   {
     range: '6-7 лет',
     emoji: '👨',
     duration: 30,
-    description: 'Предшкольный и начало школьного возраста. Адаптация к учебному процессу.',
-    features: ['Школьная адаптация', 'Учебные навыки', 'Дисциплина']
+    description: 'Предшкольный возраст. Адаптация к структурированным занятиям в кружках и секциях.',
+    features: ['Учебные навыки', 'Дисциплина', 'Групповая работа']
   },
   {
     range: '7-18 лет',
     emoji: '🎓',
     duration: 45,
-    description: 'Школьный возраст. Полноценный академический час для всех классов школы.',
-    features: ['Школьная программа', 'Углубленное обучение', 'Профориентация']
+    description: 'Школьный возраст. Полноценный академический час для программ дополнительного образования.',
+    features: ['Профильные курсы', 'Углубленное обучение', 'Профориентация']
   }
 ];
 
 export default function Index() {
+  const [mode, setMode] = useState<'toAcademic' | 'toRegular'>('toAcademic');
   const [inputHours, setInputHours] = useState<number>(1);
   const [inputMinutes, setInputMinutes] = useState<number>(0);
+  const [academicInput, setAcademicInput] = useState<number>(2);
   const [selectedAgeGroup, setSelectedAgeGroup] = useState<number>(3);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -65,6 +67,9 @@ export default function Index() {
 
   const totalMinutes = inputHours * 60 + inputMinutes;
   const academicHours = Math.round((totalMinutes / ageGroups[selectedAgeGroup].duration) * 10) / 10;
+  const regularMinutes = Math.round(academicInput * ageGroups[selectedAgeGroup].duration);
+  const regularHours = Math.floor(regularMinutes / 60);
+  const regularMins = regularMinutes % 60;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,65 +90,107 @@ export default function Index() {
             ⏰ Калькулятор академических часов
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Рассчитайте академические часы с учётом возрастных особенностей детей от 1.5 до 18 лет
+            Рассчитайте академические часы для программ дополнительного образования с учётом возрастных особенностей детей от 1.5 до 18 лет
           </p>
         </header>
+
+        <div className="flex justify-center mb-8 animate-fade-in">
+          <div className="inline-flex rounded-lg border border-border bg-muted p-1">
+            <Button
+              variant={mode === 'toAcademic' ? 'default' : 'ghost'}
+              onClick={() => setMode('toAcademic')}
+              className="rounded-md"
+            >
+              <Icon name="ArrowRight" size={18} className="mr-2" />
+              Обычные → Академические
+            </Button>
+            <Button
+              variant={mode === 'toRegular' ? 'default' : 'ghost'}
+              onClick={() => setMode('toRegular')}
+              className="rounded-md"
+            >
+              <Icon name="ArrowLeft" size={18} className="mr-2" />
+              Академические → Обычные
+            </Button>
+          </div>
+        </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           <Card className="animate-scale-in shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="bg-primary/5 rounded-t-lg">
               <CardTitle className="flex items-center gap-2 text-2xl">
                 <Icon name="Calculator" size={28} className="text-primary" />
-                Калькулятор
+                {mode === 'toAcademic' ? 'Обычные → Академические' : 'Академические → Обычные'}
               </CardTitle>
-              <CardDescription>Введите обычные часы и выберите возрастную группу</CardDescription>
+              <CardDescription>
+                {mode === 'toAcademic' 
+                  ? 'Введите обычные часы и выберите возрастную группу' 
+                  : 'Введите академические часы и выберите возрастную группу'}
+              </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-6">
-                <div>
-                  <Label className="text-base font-medium mb-3 block">
-                    Введите время:
-                  </Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="hours" className="text-sm text-muted-foreground mb-2 block">
-                        Часы
-                      </Label>
-                      <div className="flex gap-2 items-center">
-                        <Input
-                          id="hours"
-                          type="number"
-                          value={inputHours}
-                          onChange={(e) => setInputHours(Math.max(0, Number(e.target.value)))}
-                          min="0"
-                          max="10"
-                          className="text-lg"
-                        />
-                        <span className="text-muted-foreground whitespace-nowrap text-sm">ч</span>
+                {mode === 'toAcademic' ? (
+                  <div>
+                    <Label className="text-base font-medium mb-3 block">
+                      Введите обычное время:
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="hours" className="text-sm text-muted-foreground mb-2 block">
+                          Часы
+                        </Label>
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            id="hours"
+                            type="number"
+                            value={inputHours}
+                            onChange={(e) => setInputHours(Math.max(0, Number(e.target.value)))}
+                            min="0"
+                            max="10"
+                            className="text-lg"
+                          />
+                          <span className="text-muted-foreground whitespace-nowrap text-sm">ч</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="minutes" className="text-sm text-muted-foreground mb-2 block">
+                          Минуты
+                        </Label>
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            id="minutes"
+                            type="number"
+                            value={inputMinutes}
+                            onChange={(e) => setInputMinutes(Math.max(0, Math.min(59, Number(e.target.value))))}
+                            min="0"
+                            max="59"
+                            className="text-lg"
+                          />
+                          <span className="text-muted-foreground whitespace-nowrap text-sm">мин</span>
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <Label htmlFor="minutes" className="text-sm text-muted-foreground mb-2 block">
-                        Минуты
-                      </Label>
-                      <div className="flex gap-2 items-center">
-                        <Input
-                          id="minutes"
-                          type="number"
-                          value={inputMinutes}
-                          onChange={(e) => setInputMinutes(Math.max(0, Math.min(59, Number(e.target.value))))}
-                          min="0"
-                          max="59"
-                          className="text-lg"
-                        />
-                        <span className="text-muted-foreground whitespace-nowrap text-sm">мин</span>
-                      </div>
+                    <div className="mt-4 text-center text-sm text-muted-foreground">
+                      Всего: <span className="font-semibold text-foreground">{totalMinutes}</span> минут
                     </div>
                   </div>
-                  <div className="mt-4 text-center text-sm text-muted-foreground">
-                    Всего: <span className="font-semibold text-foreground">{totalMinutes}</span> минут
+                ) : (
+                  <div>
+                    <Label htmlFor="academic" className="text-base font-medium mb-3 block">
+                      Введите академические часы:
+                    </Label>
+                    <Input
+                      id="academic"
+                      type="number"
+                      value={academicInput}
+                      onChange={(e) => setAcademicInput(Math.max(0, Number(e.target.value)))}
+                      min="0"
+                      step="0.1"
+                      className="text-lg"
+                    />
                   </div>
-                </div>
+                )}
 
                 <div>
                   <Label className="text-base font-medium mb-3 block">Выберите возрастную группу:</Label>
@@ -164,15 +211,31 @@ export default function Index() {
 
                 <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-6 text-center border-2 border-primary/20">
                   <div className="text-sm text-muted-foreground mb-2">Результат:</div>
-                  <div className="text-5xl font-bold text-primary font-rubik mb-2">
-                    {academicHours}
-                  </div>
-                  <div className="text-lg text-foreground">
-                    академических часов
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-3">
-                    {ageGroups[selectedAgeGroup].emoji} {totalMinutes} мин = {academicHours} × {ageGroups[selectedAgeGroup].duration} мин
-                  </div>
+                  {mode === 'toAcademic' ? (
+                    <>
+                      <div className="text-5xl font-bold text-primary font-rubik mb-2">
+                        {academicHours}
+                      </div>
+                      <div className="text-lg text-foreground">
+                        академических часов
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-3">
+                        {ageGroups[selectedAgeGroup].emoji} {totalMinutes} мин = {academicHours} × {ageGroups[selectedAgeGroup].duration} мин
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-5xl font-bold text-primary font-rubik mb-2">
+                        {regularHours > 0 ? `${regularHours}ч ` : ''}{regularMins}м
+                      </div>
+                      <div className="text-lg text-foreground">
+                        обычного времени
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-3">
+                        {ageGroups[selectedAgeGroup].emoji} {academicInput} ак.ч × {ageGroups[selectedAgeGroup].duration} мин = {regularMinutes} мин
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -209,8 +272,8 @@ export default function Index() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-foreground">
-                  Академический час — это единица измерения учебного времени, которая адаптируется под возрастные особенности детей. 
-                  Для младших детей это короткие периоды концентрации внимания, для старших — полноценные учебные занятия.
+                  Академический час в дополнительном образовании — это единица измерения учебного времени, которая адаптируется под возрастные особенности детей. 
+                  Для младших детей это короткие периоды концентрации внимания в кружках и студиях, для старших — полноценные занятия в секциях и образовательных центрах.
                 </p>
               </CardContent>
             </Card>
@@ -314,7 +377,7 @@ export default function Index() {
 
         <footer className="mt-12 text-center text-muted-foreground animate-fade-in">
           <p className="text-sm">
-            © 2024 Калькулятор академических часов | Создано для помощи педагогам и родителям
+            © 2024 Калькулятор академических часов | Создано для педагогов дополнительного образования и родителей
           </p>
         </footer>
       </div>
