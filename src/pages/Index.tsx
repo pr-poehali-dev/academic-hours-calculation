@@ -55,14 +55,16 @@ const ageGroups = [
 ];
 
 export default function Index() {
-  const [regularHours, setRegularHours] = useState<number>(60);
+  const [inputHours, setInputHours] = useState<number>(1);
+  const [inputMinutes, setInputMinutes] = useState<number>(0);
   const [selectedAgeGroup, setSelectedAgeGroup] = useState<number>(3);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const { toast } = useToast();
 
-  const academicHours = Math.round((regularHours / ageGroups[selectedAgeGroup].duration) * 10) / 10;
+  const totalMinutes = inputHours * 60 + inputMinutes;
+  const academicHours = Math.round((totalMinutes / ageGroups[selectedAgeGroup].duration) * 10) / 10;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,29 +101,48 @@ export default function Index() {
             <CardContent className="pt-6">
               <div className="space-y-6">
                 <div>
-                  <Label htmlFor="hours" className="text-base font-medium mb-2 block">
-                    Обычные часы (минуты):
+                  <Label className="text-base font-medium mb-3 block">
+                    Введите время:
                   </Label>
-                  <div className="flex gap-3 items-center">
-                    <Input
-                      id="hours"
-                      type="number"
-                      value={regularHours}
-                      onChange={(e) => setRegularHours(Number(e.target.value))}
-                      min="1"
-                      max="300"
-                      className="text-lg"
-                    />
-                    <span className="text-muted-foreground whitespace-nowrap">мин</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="hours" className="text-sm text-muted-foreground mb-2 block">
+                        Часы
+                      </Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="hours"
+                          type="number"
+                          value={inputHours}
+                          onChange={(e) => setInputHours(Math.max(0, Number(e.target.value)))}
+                          min="0"
+                          max="10"
+                          className="text-lg"
+                        />
+                        <span className="text-muted-foreground whitespace-nowrap text-sm">ч</span>
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="minutes" className="text-sm text-muted-foreground mb-2 block">
+                        Минуты
+                      </Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="minutes"
+                          type="number"
+                          value={inputMinutes}
+                          onChange={(e) => setInputMinutes(Math.max(0, Math.min(59, Number(e.target.value))))}
+                          min="0"
+                          max="59"
+                          className="text-lg"
+                        />
+                        <span className="text-muted-foreground whitespace-nowrap text-sm">мин</span>
+                      </div>
+                    </div>
                   </div>
-                  <Slider
-                    value={[regularHours]}
-                    onValueChange={(value) => setRegularHours(value[0])}
-                    min={10}
-                    max={300}
-                    step={5}
-                    className="mt-4"
-                  />
+                  <div className="mt-4 text-center text-sm text-muted-foreground">
+                    Всего: <span className="font-semibold text-foreground">{totalMinutes}</span> минут
+                  </div>
                 </div>
 
                 <div>
@@ -150,7 +171,7 @@ export default function Index() {
                     академических часов
                   </div>
                   <div className="text-sm text-muted-foreground mt-3">
-                    {ageGroups[selectedAgeGroup].emoji} {regularHours} мин = {academicHours} × {ageGroups[selectedAgeGroup].duration} мин
+                    {ageGroups[selectedAgeGroup].emoji} {totalMinutes} мин = {academicHours} × {ageGroups[selectedAgeGroup].duration} мин
                   </div>
                 </div>
               </div>
